@@ -11,7 +11,6 @@ EnvironmentFile=/etc/environment
 
 Environment=DOCKER_REPOSITORY=gliderlabs/consul-server
 Environment=DOCKER_CONTAINER=consul
-Environment=DOCKER_IPV4=172.17.0.1
 Environment=CONSUL_DATACENTER=dc1
 
 RemainAfterExit=yes
@@ -20,9 +19,7 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill $DOCKER_CONTAINER
 ExecStartPre=-/usr/bin/docker rm $DOCKER_CONTAINER
 ExecStartPre=/usr/bin/docker pull $DOCKER_REPOSITORY
-
 ExecStartPre=/usr/bin/mkdir -p /etc/systemd/resolved.conf.d
-
 ExecStartPre=/bin/sh -c "/usr/bin/etcdctl mk /services/consul/bootstrap/host $COREOS_PUBLIC_IPV4 || sleep 10"
 
 ExecStart=/bin/sh -c "NUM_SERVERS=$(fleetctl list-machines | grep -v \"MACHINE\" |wc -l) && EXPECT=$(if [ $NUM_SERVERS -lt 3 ] ; then echo 1; else echo 3; fi) && JOIN_IP=$(etcdctl ls /services/consul/bootstrap/servers | grep -v $COREOS_PUBLIC_IPV4 | cut -d '/' -f 6 | head -n 1) && JOIN=$(if [ \"$JOIN_IP\" != \"\" ] ; then sleep 10; echo \"-join $JOIN_IP\"; else echo \"-bootstrap-expect $EXPECT\"; fi) && /usr/bin/docker run --name $DOCKER_CONTAINER -h %H \
@@ -35,11 +32,11 @@ ExecStart=/bin/sh -c "NUM_SERVERS=$(fleetctl list-machines | grep -v \"MACHINE\"
     -p $COREOS_PUBLIC_IPV4:8500:8500 \
     -p $COREOS_PUBLIC_IPV4:8600:8600 \
     -p $COREOS_PUBLIC_IPV4:8600:8600/udp \
-    -p $DOCKER_IPV4:53:8600/udp \
+    -p $(ip addr show docker0 scope global|grep inet|awk -F[\ \/]+ '{print $3}'):53:8600/udp \
     $DOCKER_REPOSITORY -dc=$CONSUL_DATACENTER -advertise $COREOS_PUBLIC_IPV4 $JOIN"
 
 ExecStartPost=/bin/sh -c "/usr/bin/etcdctl set \"/services/consul/bootstrap/servers/$COREOS_PUBLIC_IPV4\" \"$COREOS_PUBLIC_IPV4\""
-ExecStartPost=/bin/sh -c 'echo -e "[Resolve]\nDNS=$DOCKER_IPV4" > /etc/systemd/resolved.conf.d/00-consul.conf && systemctl restart systemd-resolved'
+ExecStartPost=/bin/sh -c 'ADDR=$(ip addr show docker0 scope global|grep inet|awk -F[\ \/]+ \'{print $3}\') && echo -e "[Resolve]\nDNS=$ADDR" > /etc/systemd/resolved.conf.d/00-consul.conf && systemctl restart systemd-resolved'
 
 ExecStop=/bin/sh -c "rm /etc/systemd/resolved.conf.d/00-consul.conf && systemctl restart systemd-resolved"
 ExecStop=/bin/sh -c "/usr/bin/etcdctl rm \"/services/consul/bootstrap/servers/$COREOS_PUBLIC_IPV4\""
