@@ -1,6 +1,5 @@
 [Unit]
 Description=Consul
-Requires=docker.service
 After=docker.service
 Requires=docker.service
 After=etcd2.service
