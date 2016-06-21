@@ -40,7 +40,7 @@ ExecStartPost=/bin/sh -c 'ADDR=$(ip addr show docker0 scope global|grep inet|awk
 ExecStop=/bin/sh -c "rm /etc/systemd/resolved.conf.d/00-consul.conf && systemctl restart systemd-resolved"
 ExecStop=/bin/sh -c "/usr/bin/etcdctl rm \"/services/consul/bootstrap/servers/$COREOS_PUBLIC_IPV4\""
 ExecStop=/bin/sh -c "/usr/bin/etcdctl rm /services/consul/bootstrap/host"
-ExecStop=/usr/bin/docker stop consul
+ExecStop=/usr/bin/docker stop $DOCKER_CONTAINER
 
 [X-Fleet]
 Global=true
