@@ -20,7 +20,7 @@ ExecStartPre=-/usr/bin/docker kill $DOCKER_CONTAINER
 ExecStartPre=-/usr/bin/docker rm $DOCKER_CONTAINER
 ExecStartPre=/usr/bin/docker pull $DOCKER_REPOSITORY
 
-ExecStart=/bin/sh -c "sleep 10 && /usr/bin/docker run --name $DOCKER_CONTAINER --net=host --volume /var/run/docker.sock:/tmp/docker.sock $DOCKER_REPOSITORY consul://$COREOS_PUBLIC_IPV4:8500"
+ExecStart=/bin/sh -c "sleep 10 && /usr/bin/docker run --name $DOCKER_CONTAINER --net=host --volume /var/run/docker.sock:/tmp/docker.sock $DOCKER_REPOSITORY -ip $COREOS_PUBLIC_IPV4 consul://$COREOS_PUBLIC_IPV4:8500"
 
 ExecStop=/usr/bin/docker stop $DOCKER_CONTAINER
 
