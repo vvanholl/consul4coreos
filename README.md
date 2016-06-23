@@ -14,7 +14,16 @@ Since Consul brings interesting features (service catalog, DNS interface, watche
 - DNS service
 - Automatic service declaration via Registrator
 
-## How to use it ?
+## Quick install
+`git clone git@github.com:vvanholl/consul4coreos.git`
+
+`cd consul4coreos`
+
+`./install.sh`
+
+Note that you can give options to ./install.sh, like `--registrator` to also add Registrator service, or `--join <node>` to join an existing cluster
+
+## Manual install
 
 ### 1. Clone this repo :
 `git clone git@github.com:vvanholl/consul4coreos.git`
