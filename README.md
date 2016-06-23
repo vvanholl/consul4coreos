@@ -14,6 +14,10 @@ Since Consul brings interesting features (service catalog, DNS interface, watche
 - DNS service
 - Automatic service declaration via Registrator
 
+## Requirements
+- CoreOS cluster with etcd and fleet running
+- /etc/environment file existing with `COREOS_PUBLIC_IPV4` variable defined
+
 ## Quick install
 `git clone git@github.com:vvanholl/consul4coreos.git`
 
